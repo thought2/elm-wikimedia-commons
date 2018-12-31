@@ -1,13 +1,11 @@
 module WikimediaCommons.RandomPictures
     exposing
         ( PictureResource
-        , PictureResourceSpec
         , Url
         , decodeResources
         , fetchResources
         , getMaxUrl
         , getUrl
-        , toSpec
         )
 
 {-| A library for working with the WikimediaCommons API
@@ -25,41 +23,24 @@ module WikimediaCommons.RandomPictures
 -}
 
 import Http as Http exposing (Request)
-import Json.Decode as Decode exposing (..)
-import Json.Decode.Extra as Decode exposing (..)
-import Regex exposing (..)
-import Util as Util
+import Internal as Internal exposing (..)
+import Json.Decode as Decode exposing (Decoder)
 
 
-type PictureResource
-    = PictureResource PictureResourceSpec
-
-
-{-| Inspect data of a picture resource.
+{-| Main type of the library, a picture resource from WikiMedia Commons.
 -}
-toSpec : PictureResource -> PictureResourceSpec
-toSpec (PictureResource spec) =
-    spec
-
-
-type alias PictureResourceSpec =
-    { maxSize : ( Int, Int )
-    , urlTemplate : ( String, String )
-    }
-
-
-type alias UrlTemplate =
-    ( String, String )
+type alias PictureResource =
+    Internal.PictureResource
 
 
 type alias Url =
-    String
+    Internal.Url
 
 
 {-| Get an `Url` from a `PictureResource` if the given width is valid.
 -}
 getUrl : Int -> PictureResource -> Maybe Url
-getUrl width (PictureResource { maxSize, urlTemplate }) =
+getUrl width (Internal.PictureResource { maxSize, urlTemplate }) =
     let
         ( maxWidth, _ ) =
             maxSize
@@ -110,43 +91,4 @@ fetchResources count =
 -}
 decodeResources : Decoder (List PictureResource)
 decodeResources =
-    at [ "query", "pages" ] (Util.decodeIndexedObject decodeResource)
-
-
-decodeResource : Decoder PictureResource
-decodeResource =
-    at [ "imageinfo", "0" ] <|
-        (Decode.map3 mkPictureResource
-            (field "thumburl" string)
-            (field "width" int)
-            (field "height" int)
-            |> Decode.andThen (Result.fromMaybe "Wrong data format." >> Decode.fromResult)
-        )
-
-
-mkUrl : UrlTemplate -> Int -> Url
-mkUrl ( prefix, suffix ) width =
-    prefix ++ toString width ++ suffix
-
-
-mkPictureResource : String -> Int -> Int -> Maybe PictureResource
-mkPictureResource thumburl width height =
-    let
-        result =
-            find All (regex "(.*[/-])\\d*(px.*)") thumburl
-    in
-    case result of
-        { submatches } :: [] ->
-            case submatches of
-                (Just a) :: (Just b) :: [] ->
-                    Just <|
-                        PictureResource
-                            { maxSize = ( width - 1, height - 1 )
-                            , urlTemplate = ( a, b )
-                            }
-
-                _ ->
-                    Nothing
-
-        _ ->
-            Nothing
+    Internal.decodeResources

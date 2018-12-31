@@ -1,93 +1,38 @@
 module WikimediaCommons.RandomPicturesTest exposing (..)
 
 import Expect exposing (Expectation)
-import Json.Decode exposing (decodeValue)
-import Json.Encode exposing (..)
+import Internal as I
 import Test exposing (..)
 import WikimediaCommons.RandomPictures as RP
 
 
-encodePictureResourceSpecList : List RP.PictureResourceSpec -> Value
-encodePictureResourceSpecList xs =
-    object
-        [ ( "query"
-          , object
-                [ ( "pages"
-                  , object
-                        (List.indexedMap
-                            (\i entry ->
-                                ( toString i, encodePictureResourceSpec entry )
-                            )
-                            xs
-                        )
-                  )
-                ]
-          )
+mockPictureResource : I.PictureResource
+mockPictureResource =
+    I.PictureResource
+        { urlTemplate = ( "prefix", "suffix" )
+        , maxSize = ( 100, 200 )
+        }
+
+
+getUrl : Test
+getUrl =
+    describe "getUrl"
+        [ test "Works with correct data." <|
+            \_ ->
+                RP.getUrl 100 mockPictureResource
+                    |> Expect.equal (Just "prefix100suffix")
+        , test "Fails with wrong data." <|
+            \_ ->
+                RP.getUrl 101 mockPictureResource
+                    |> Expect.equal Nothing
         ]
 
 
-encodePictureResourceSpec : RP.PictureResourceSpec -> Value
-encodePictureResourceSpec { urlTemplate, maxSize } =
-    let
-        ( prefix, suffix ) =
-            urlTemplate
-
-        ( maxWidth, maxHeight ) =
-            maxSize
-
-        thumburl =
-            prefix ++ "100" ++ suffix
-
-        width =
-            maxWidth + 1
-
-        height =
-            maxHeight + 1
-    in
-    object
-        [ ( "imageinfo"
-          , list
-                [ object
-                    [ ( "thumburl"
-                      , string thumburl
-                      )
-                    , ( "width", int width )
-                    , ( "height", int height )
-                    ]
-                ]
-          )
-        ]
-
-
-testCases : List RP.PictureResourceSpec
-testCases =
-    [ { urlTemplate =
-            ( "https://upload.wikimedia.org/"
-                ++ "wikipedia/commons/thumb/d/d0/Kaple_svateho_Jana_Krtitele.jpg/"
-            , "px-Kaple_svateho_Jana_Krtitele.jpg"
-            )
-      , maxSize = ( 2304, 1728 )
-      }
-    , { urlTemplate =
-            ( "https://upload.wikimedia.org/"
-                ++ "wikipedia/commons/thumb/a/a7/Alti-cand.jpg/"
-            , "px-Alti-cand.jpg"
-            )
-      , maxSize = ( 3072, 2304 )
-      }
-    ]
-
-
-suite : Test
-suite =
-    describe "WikimediaCommons.RandomPictures"
-        [ describe "decodeResources"
-            [ test "works well with a data round trip." <|
-                \_ ->
-                    testCases
-                        |> encodePictureResourceSpecList
-                        |> decodeValue RP.decodeResources
-                        |> Result.map (List.map RP.toSpec)
-                        |> Expect.equal (Ok testCases)
-            ]
+getMaxUrl : Test
+getMaxUrl =
+    describe "getMaxUrl"
+        [ test "Works with correct data." <|
+            \_ ->
+                RP.getMaxUrl mockPictureResource
+                    |> Expect.equal "prefix100suffix"
         ]
