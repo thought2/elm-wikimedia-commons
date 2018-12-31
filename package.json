@@ -1,7 +1,7 @@
 {
   "name": "elm-wikimedia-commons",
-  "version": "1.0.0",
-  "description": "",
+  "version": "1.0.1",
+  "description": "An Elm library for dealing with the Wikimedia Commons API.",
   "main": "index.js",
   "dependencies": {},
   "devDependencies": {

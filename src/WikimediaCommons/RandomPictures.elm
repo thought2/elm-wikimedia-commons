@@ -2,7 +2,6 @@ module WikimediaCommons.RandomPictures
     exposing
         ( PictureResource
         , Url
-        , decodeResources
         , fetchResources
         , getMaxUrl
         , getUrl
@@ -10,15 +9,7 @@ module WikimediaCommons.RandomPictures
 
 {-| A library for working with the WikimediaCommons API
 
-
-# Simple
-
 @docs PictureResource, getUrl, getMaxUrl, Url, fetchResources
-
-
-# Advanced
-
-@docs decodeResources, toSpec
 
 -}
 
@@ -33,6 +24,8 @@ type alias PictureResource =
     Internal.PictureResource
 
 
+{-| An URL String
+-}
 type alias Url =
     Internal.Url
 
@@ -85,10 +78,3 @@ fetchResources count =
                     ]
     in
     Http.get url decodeResources
-
-
-{-| JSON decoder for a list of picture resources.
--}
-decodeResources : Decoder (List PictureResource)
-decodeResources =
-    Internal.decodeResources
