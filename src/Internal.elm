@@ -9,12 +9,9 @@ import Util as Util
 type PictureResource
     = PictureResource
         { maxSize : ( Int, Int )
-        , urlTemplate : ( String, String )
+        , folder : String
+        , fileName : String
         }
-
-
-type alias UrlTemplate =
-    ( String, String )
 
 
 type alias Url =
@@ -30,25 +27,41 @@ decodeResource : Decoder PictureResource
 decodeResource =
     at [ "imageinfo", "0" ] <|
         (Decode.map3 mkPictureResource
-            (field "thumburl" string)
+            (field "url" string)
             (field "width" int)
             (field "height" int)
             |> Decode.andThen (Result.fromMaybe "Wrong data format." >> Decode.fromResult)
         )
 
 
-mkUrl : UrlTemplate -> Int -> Url
-mkUrl ( prefix, suffix ) width =
-    prefix ++ toString width ++ suffix
+mkPictureResource : String -> Int -> Int -> Maybe PictureResource
+mkPictureResource url width height =
+    parseUrl url
+        |> Maybe.map
+            (\{ folder, fileName } ->
+                PictureResource
+                    { maxSize = ( width - 1, height - 1 )
+                    , folder = folder
+                    , fileName = fileName
+                    }
+            )
 
 
-mkUrlTemplate : Url -> Maybe UrlTemplate
-mkUrlTemplate thumbUrl =
-    case find All (regex "(.*[/-])\\d*(px.*)") thumbUrl of
+parseUrl : String -> Maybe { folder : String, fileName : String }
+parseUrl url =
+    let
+        regexStr =
+            "^https://upload.wikimedia.org/"
+                ++ "wikipedia/commons/([0-9a-z]{1,2}/[0-9a-z]{1,2}/)(.*)$"
+    in
+    case find All (regex regexStr) url of
         { submatches } :: [] ->
             case submatches of
-                (Just prefix) :: (Just suffix) :: [] ->
-                    Just ( prefix, suffix )
+                (Just folder) :: (Just fileName) :: [] ->
+                    Just
+                        { folder = folder
+                        , fileName = fileName
+                        }
 
                 _ ->
                     Nothing
@@ -57,13 +70,13 @@ mkUrlTemplate thumbUrl =
             Nothing
 
 
-mkPictureResource : String -> Int -> Int -> Maybe PictureResource
-mkPictureResource thumbUrl width height =
-    mkUrlTemplate thumbUrl
-        |> Maybe.map
-            (\urlTemplate ->
-                PictureResource
-                    { maxSize = ( width - 1, height - 1 )
-                    , urlTemplate = urlTemplate
-                    }
-            )
+mkUrl : PictureResource -> Int -> Url
+mkUrl (PictureResource { maxSize, folder, fileName }) width =
+    "https://upload.wikimedia.org/"
+        ++ "wikipedia/commons/thumb/"
+        ++ folder
+        ++ fileName
+        ++ "/"
+        ++ toString width
+        ++ "px-"
+        ++ fileName

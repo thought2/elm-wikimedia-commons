@@ -8,31 +8,31 @@ import Test exposing (..)
 import Util as U
 
 
-encodePictureResourceSpecList : List I.PictureResource -> Value
-encodePictureResourceSpecList xs =
+encodePictureResourceList : List I.PictureResource -> Value
+encodePictureResourceList xs =
     object
         [ ( "query"
           , object
                 [ ( "pages"
                   , object
-                        (List.indexedMap (\i entry -> ( toString i, encodePictureResourceSpec entry )) xs)
+                        (List.indexedMap (\i entry -> ( toString i, encodePictureResource entry )) xs)
                   )
                 ]
           )
         ]
 
 
-encodePictureResourceSpec : I.PictureResource -> Value
-encodePictureResourceSpec (I.PictureResource { urlTemplate, maxSize }) =
+encodePictureResource : I.PictureResource -> Value
+encodePictureResource (I.PictureResource { folder, fileName, maxSize }) =
     let
-        ( prefix, suffix ) =
-            urlTemplate
-
         ( maxWidth, maxHeight ) =
             maxSize
 
-        thumburl =
-            prefix ++ "100" ++ suffix
+        url =
+            "https://upload.wikimedia.org/"
+                ++ "wikipedia/commons/"
+                ++ folder
+                ++ fileName
 
         width =
             maxWidth + 1
@@ -44,8 +44,8 @@ encodePictureResourceSpec (I.PictureResource { urlTemplate, maxSize }) =
         [ ( "imageinfo"
           , list
                 [ object
-                    [ ( "thumburl"
-                      , string thumburl
+                    [ ( "url"
+                      , string url
                       )
                     , ( "width", int width )
                     , ( "height", int height )
@@ -58,19 +58,13 @@ encodePictureResourceSpec (I.PictureResource { urlTemplate, maxSize }) =
 testCases : List I.PictureResource
 testCases =
     [ I.PictureResource
-        { urlTemplate =
-            ( "https://upload.wikimedia.org/"
-                ++ "wikipedia/commons/thumb/d/d0/Kaple_svateho_Jana_Krtitele.jpg/"
-            , "px-Kaple_svateho_Jana_Krtitele.jpg"
-            )
+        { folder = "d/d0/"
+        , fileName = "Kaple_svateho_Jana_Krtitele.jpg"
         , maxSize = ( 2304, 1728 )
         }
     , I.PictureResource
-        { urlTemplate =
-            ( "https://upload.wikimedia.org/"
-                ++ "wikipedia/commons/thumb/a/a7/Alti-cand.jpg/"
-            , "px-Alti-cand.jpg"
-            )
+        { folder = "a/a7/"
+        , fileName = "Alti-cand.jpg"
         , maxSize = ( 3072, 2304 )
         }
     ]
@@ -82,42 +76,31 @@ decodeResources =
         [ test "works well with a data round trip." <|
             \_ ->
                 testCases
-                    |> encodePictureResourceSpecList
+                    |> encodePictureResourceList
                     |> decodeValue I.decodeResources
                     |> Expect.equal (Ok testCases)
         ]
 
 
-mkUrl : Test
-mkUrl =
-    describe "mkUrl"
-        [ test "inserts the integer correctly." <|
-            \_ ->
-                I.mkUrl ( "prefix", "suffix" ) 200
-                    |> Expect.equal "prefix200suffix"
-        ]
-
-
-mkUrlTemplate : Test
-mkUrlTemplate =
-    describe "mkUrlTemplate"
+parseUrl : Test
+parseUrl =
+    describe "parseUrl"
         [ test "works with correct data." <|
             \_ ->
                 let
-                    prefix =
-                        "https://upload.wikimedia.org"
-                            ++ "/wikipedia/commons/thumb/7/7b/MichiganStadium2010.JPG/"
-
-                    size =
-                        100
-
-                    suffix =
-                        "px-MichiganStadium2010.JPG"
+                    url =
+                        "https://upload.wikimedia.org/"
+                            ++ "wikipedia/commons/4/4c/In_The_Yard_bySLGerry.png"
                 in
-                I.mkUrlTemplate (prefix ++ toString size ++ suffix)
-                    |> Expect.equal (Just ( prefix, suffix ))
-        , test "fails with wrong data." <|
+                I.parseUrl url
+                    |> Expect.equal
+                        (Just
+                            { folder = "4/4c/"
+                            , fileName = "In_The_Yard_bySLGerry.png"
+                            }
+                        )
+        , test "fails with empty string." <|
             \_ ->
-                I.mkUrlTemplate ""
+                I.parseUrl ""
                     |> Expect.equal Nothing
         ]

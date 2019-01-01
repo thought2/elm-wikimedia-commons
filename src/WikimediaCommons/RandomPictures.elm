@@ -33,16 +33,13 @@ type alias Url =
 {-| Get an `Url` from a `PictureResource` if the given width is valid.
 -}
 getUrl : Int -> PictureResource -> Maybe Url
-getUrl width (Internal.PictureResource { maxSize, urlTemplate }) =
+getUrl width ((Internal.PictureResource { maxSize }) as pictureResource) =
     let
         ( maxWidth, _ ) =
             maxSize
-
-        ( prefix, suffix ) =
-            urlTemplate
     in
     if width <= maxWidth && width > 0 then
-        Just (mkUrl urlTemplate width)
+        Just (mkUrl pictureResource width)
     else
         Nothing
 
@@ -50,12 +47,12 @@ getUrl width (Internal.PictureResource { maxSize, urlTemplate }) =
 {-| Get an `Url` from a `PictureResource` pointing to a picture in the largest possible size.
 -}
 getMaxUrl : PictureResource -> Url
-getMaxUrl (PictureResource { urlTemplate, maxSize }) =
+getMaxUrl ((PictureResource { maxSize }) as pictureResource) =
     let
         ( maxWidth, _ ) =
             maxSize
     in
-    mkUrl urlTemplate maxWidth
+    mkUrl pictureResource maxWidth
 
 
 {-| Fetches a number of picture resources from the API.
