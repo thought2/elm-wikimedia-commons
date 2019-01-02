@@ -3,13 +3,14 @@ module WikimediaCommons.RandomPictures
         ( PictureResource
         , Url
         , fetchResources
+        , getMaxSize
         , getMaxUrl
         , getUrl
         )
 
 {-| A library for working with the WikimediaCommons API
 
-@docs PictureResource, getUrl, getMaxUrl, Url, fetchResources
+@docs PictureResource, getUrl, getMaxUrl, getMaxSize, Url, fetchResources
 
 -}
 
@@ -53,6 +54,13 @@ getMaxUrl ((PictureResource { maxSize }) as pictureResource) =
             maxSize
     in
     mkUrl pictureResource maxWidth
+
+
+{-| Get the maximum size in which the resource is available.
+-}
+getMaxSize : PictureResource -> ( Int, Int )
+getMaxSize (PictureResource { maxSize }) =
+    maxSize
 
 
 {-| Fetches a number of picture resources from the API.
