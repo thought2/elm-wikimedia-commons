@@ -1,5 +1,5 @@
 {
-    "version": "1.0.1",
+    "version": "1.1.0",
     "summary": "An Elm library for dealing with the Wikimedia Commons API.",
     "repository": "https://github.com/thought2/elm-wikimedia-commons.git",
     "license": "BSD3",
