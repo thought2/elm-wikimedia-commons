@@ -1,4 +1,16 @@
-module Viewer exposing (..)
+module Viewer
+    exposing
+        ( Model
+        , Msg(..)
+        , constants
+        , init
+        , isValidResource
+        , main
+        , subscriptions
+        , update
+        , view
+        , viewLarge
+        )
 
 import Html as Html exposing (..)
 import Html.Attributes exposing (..)

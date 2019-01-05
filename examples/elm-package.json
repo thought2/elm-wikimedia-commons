@@ -1,7 +1,7 @@
 {
     "version": "1.0.0",
-    "summary": "helpful summary of your project, less than 80 characters",
-    "repository": "https://github.com/user/project.git",
+    "summary": "Examples for elm-wikimedia-commons",
+    "repository": "https://github.com/thought2/elm-wikimedia-commons.git",
     "license": "BSD3",
     "source-directories": [
         ".",
