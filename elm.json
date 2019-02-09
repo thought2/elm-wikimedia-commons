@@ -3,7 +3,7 @@
     "name": "thought2/elm-wikimedia-commons",
     "summary": "An Elm library for dealing with the Wikimedia Commons API.",
     "license": "BSD-3-Clause",
-    "version": "1.2.0",
+    "version": "2.0.0",
     "exposed-modules": [
         "WikimediaCommons.RandomPictures"
     ],
