@@ -12,17 +12,19 @@ module Viewer
         , viewLarge
         )
 
+import Browser
 import Html as Html exposing (..)
 import Html.Attributes exposing (..)
 import Html.Events exposing (..)
 import Http as Http
+import Task
 import WikimediaCommons.RandomPictures as RP
 
 
-main : Program Never Model Msg
+main : Program () Model Msg
 main =
-    Html.program
-        { init = init
+    Browser.element
+        { init = \_ -> init
         , view = view
         , update = update
         , subscriptions = subscriptions
@@ -62,7 +64,7 @@ init =
 
 getResources : Cmd Msg
 getResources =
-    Http.send NewResources (RP.fetchResources constants.count)
+    Task.attempt NewResources (RP.fetchResources constants.count)
 
 
 
@@ -137,19 +139,19 @@ viewLarge : RP.PictureResource -> Html Msg
 viewLarge resource =
     let
         styleWrapper =
-            [ ( "position", "fixed" )
-            , ( "top", "0px" )
-            , ( "right", "0px" )
-            , ( "bottom", "0px" )
-            , ( "left", "0px" )
-            , ( "background-color", "rgba(0,0,0,0.5)" )
-            , ( "display", "flex" )
-            , ( "align-items", "center" )
-            , ( "justify-content", "center" )
-            , ( "cursor", "pointer" )
+            [ style "position" "fixed"
+            , style "top" "0px"
+            , style "right" "0px"
+            , style "bottom" "0px"
+            , style "left" "0px"
+            , style "background-color" "rgbastyle0,0,0,0.5 "
+            , style "display" "flex"
+            , style "align-items" "center"
+            , style "justify-content" "center"
+            , style "cursor" "pointer"
             ]
     in
-    div [ style styleWrapper, onClick Close ]
+    div ([ onClick Close ] ++ styleWrapper)
         [ img
             [ src (RP.getUrl constants.largeWidth resource |> Maybe.withDefault "")
             ]
@@ -161,39 +163,39 @@ view : Model -> Html Msg
 view { resources, selection } =
     let
         styleWrapper =
-            [ ( "margin", "25px" ) ]
+            [ style "margin" "25px" ]
 
         styleWrapperList =
-            [ ( "display", "flex" )
-            , ( "flex-wrap", "wrap" )
+            [ style "display" "flex"
+            , style "flex-wrap" "wrap"
             ]
 
         styleItem =
-            [ ( "border", "1px solid rgba(0,0,0, 0.3)" )
-            , ( "width", toString constants.thumbWidth ++ "px" )
-            , ( "height", toString constants.thumbMaxHeight ++ "px" )
-            , ( "margin", "7px" )
-            , ( "display", "flex" )
-            , ( "align-items", "flex-end" )
-            , ( "cursor", "pointer" )
+            [ style "border" "1px solid rgbastyle0,0,0, 0.3 "
+            , style "width" <| String.fromInt constants.thumbWidth ++ "px"
+            , style "height" <| String.fromInt constants.thumbMaxHeight ++ "px"
+            , style "margin" "7px"
+            , style "display" "flex"
+            , style "align-items" "flex-end"
+            , style "cursor" "pointer"
             ]
 
         styleButton =
-            [ ( "margin-left", "7px" )
-            , ( "margin-bottom", "20px" )
+            [ style "margin-left" "7px"
+            , style "margin-bottom" "20px"
             ]
     in
-    div [ style styleWrapper ]
-        [ button [ onClick Refresh, style styleButton ] [ text "refresh" ]
+    div styleWrapper
+        [ button ([ onClick Refresh ] ++ styleButton) [ text "refresh" ]
         , div
-            [ style styleWrapperList
-            ]
+            styleWrapperList
             (List.map
                 (\res ->
                     div
-                        [ style styleItem
-                        , onClick (Select res)
-                        ]
+                        ([ onClick (Select res)
+                         ]
+                            ++ styleItem
+                        )
                         [ img
                             [ width 100
                             , src (RP.getUrl 100 res |> Maybe.withDefault "")
