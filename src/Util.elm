@@ -9,7 +9,8 @@ decodeIndexedObject decoder =
     let
         updateKeyValuePair ( key, value ) =
             String.toInt key
-                |> Result.map (\index -> ( index, value ))
+                |> Maybe.map (\index -> ( index, value ))
+                |> Result.fromMaybe "not a valid integer"
     in
     keyValuePairs decoder
         |> Decode.andThen

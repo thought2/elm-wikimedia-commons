@@ -53,8 +53,12 @@ parseUrl url =
         regexStr =
             "^https://upload.wikimedia.org/"
                 ++ "wikipedia/commons/([0-9a-z]{1,2}/[0-9a-z]{1,2}/)(.*)$"
+
+        regex =
+            Regex.fromString regexStr
+                |> Maybe.withDefault Regex.never
     in
-    case find All (regex regexStr) url of
+    case find regex url of
         { submatches } :: [] ->
             case submatches of
                 (Just folder) :: (Just fileName) :: [] ->
@@ -77,6 +81,6 @@ mkUrl (PictureResource { maxSize, folder, fileName }) width =
         ++ folder
         ++ fileName
         ++ "/"
-        ++ toString width
+        ++ String.fromInt width
         ++ "px-"
         ++ fileName

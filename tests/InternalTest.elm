@@ -15,7 +15,7 @@ encodePictureResourceList xs =
           , object
                 [ ( "pages"
                   , object
-                        (List.indexedMap (\i entry -> ( toString i, encodePictureResource entry )) xs)
+                        (List.indexedMap (\i entry -> ( String.fromInt i, encodePictureResource entry )) xs)
                   )
                 ]
           )
@@ -42,7 +42,7 @@ encodePictureResource (I.PictureResource { folder, fileName, maxSize }) =
     in
     object
         [ ( "imageinfo"
-          , list
+          , list identity
                 [ object
                     [ ( "url"
                       , string url
