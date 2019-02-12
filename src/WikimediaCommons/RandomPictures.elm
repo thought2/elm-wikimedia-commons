@@ -1,12 +1,4 @@
-module WikimediaCommons.RandomPictures
-    exposing
-        ( PictureResource
-        , Url
-        , fetchResources
-        , getMaxSize
-        , getMaxUrl
-        , getUrl
-        )
+module WikimediaCommons.RandomPictures exposing (PictureResource, getUrl, getMaxUrl, getMaxSize, Url, fetchResources)
 
 {-| A library for working with the WikimediaCommons API
 
@@ -42,6 +34,7 @@ getUrl width ((Internal.PictureResource { maxSize }) as pictureResource) =
     in
     if width <= maxWidth && width > 0 then
         Just (mkUrl pictureResource width)
+
     else
         Nothing
 
@@ -66,29 +59,6 @@ getMaxSize (PictureResource { maxSize }) =
 
 {-| Fetches a number of picture resources from the API.
 -}
-
-
-
--- fetchResources : Int -> Request (List PictureResource)
--- fetchResources count =
---     let
---         url =
---             "https://commons.wikimedia.org/w/api.php?"
---                 ++ String.join "&"
---                     [ "origin=*"
---                     , "action=query"
---                     , "format=json"
---                     , "prop=imageinfo"
---                     , "iiprop=url|size|sha1"
---                     , "generator=random"
---                     , "iiurlwidth=100"
---                     , "grnnamespace=6"
---                     , "grnlimit=" ++ toString count
---                     ]
---     in
---     Http.get url decodeResources
-
-
 fetchResources : Int -> Task Http.Error (List PictureResource)
 fetchResources count =
     let
