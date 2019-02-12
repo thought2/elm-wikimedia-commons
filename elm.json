@@ -1,13 +1,9 @@
 {
     "type": "package",
     "name": "thought2/elm-wikimedia-commons",
-    "repository": "https://github.com/thought2/elm-wikimedia-commons.git",
     "summary": "An Elm library for dealing with the Wikimedia Commons API.",
     "license": "BSD-3-Clause",
-    "version": "1.0.0",
-    "source-directories": [
-        "src"
-    ],
+    "version": "1.0.1",
     "exposed-modules": [
         "WikimediaCommons.RandomPictures"
     ],
